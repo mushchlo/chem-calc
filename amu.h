@@ -1,10 +1,10 @@
 struct elementcoef {
 	char elmnt[20];	
-	int coef;
+	unsigned short coef;
 };
 
 struct amu {
-	char* elmnt;	// user input
+	char* elmnt;
 	float gpm;	// grams per mol
 };
 

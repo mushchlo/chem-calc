@@ -28,13 +28,13 @@ coefatoi(char* tocoef)
 }
 	
 void*
-saferealloc(void* p, size_t size)
+saferealloc(void* ptr, size_t size)
 {
-	void* retval = realloc(p, size);
-	if(p == NULL)
+	void* retval = realloc(ptr, size);
+	if(ptr == NULL)
 	{
 		fputs("memory allocation error, exiting\n", stderr);
-		exit(0);
+		exit(1);
 	}
 	return retval;
 }
@@ -43,15 +43,11 @@ saferealloc(void* p, size_t size)
 float
 element2amu(char* element)
 {
-	int i = 0;
-	char *name = dict[i].elmnt;
+	int i;
 	element[strcspn(element, "\0")] = 0;
-	while(name)
-	{
-		if(strcmp(name, element) == 0)
+	for(i=0; dict[i].elmnt; i++)
+		if(strcmp(dict[i].elmnt, element) == 0)
 			return dict[i].gpm;
-		name = dict[++i].elmnt;
-	}
 	return 0;
 }
 
@@ -61,13 +57,9 @@ tokenize(char* str, int scalar)
 	int i;
 	char tokbuf[BUFSIZE];
 	struct elementcoef tokenized;
-	
-//	printf("  |before the cut, the input is %s ", str);
 
-	for(i = 0; !(str[i+1] >= 'A' && str[i+1] <= 'Z') && str[i+1] != '(' && str[i+1] != '\0'; i++);	/* walks until end of string or new element, marked by a capital letter or parentheses */
+	for(i = 0; !(str[i+1] >= 'A' && str[i+1] <= 'Z') && str[i+1] != '(' && str[i+1] != '\0'; i++);	/* walks to end or new element (marked by a capital letter/parentheses) */
 	cutstr(tokbuf, str, i+1);
-
-//	printf("after the cut, the input is %s, and the buffer is %s|\n", str, tokbuf);
 
 	for(i = 0; tokbuf[i+1] >= 'a' && tokbuf[i+1] <= 'z'; i++);
 	cutstr(tokenized.elmnt, tokbuf, i+1);
@@ -82,12 +74,11 @@ parentokenize(char* str)
 	int i;
 	char outcoeftoi[100], tokbuf[100];
 	struct elementcoef *tokenized = malloc(0);
-//	struct elementcoef *tokenized = malloc(sizeof(struct elementcoef) * 10);
 
 	rmchars(str, 1);
 	for(i = 0; str[i+1] != ')' && str[i+1] != '\0'; i++);
 	cutstr(tokbuf, str, i+1);
-	
+
 	rmchars(str, 1);
 	for(i = 0; str[i+1] != '\0' && !(str[i+1] >= 'A' && str[i+1] <= 'Z') && str[i+1] != '('; i++);
 	cutstr(outcoeftoi, str, i+1);
@@ -95,11 +86,10 @@ parentokenize(char* str)
 	int outcoef = coefatoi(outcoeftoi);
 	for(int j = 0; tokbuf[0] != '\0'; tokenized[j++] = tokenize(tokbuf, outcoef))
 		tokenized = saferealloc(tokenized, sizeof(struct elementcoef)*(j+1));
-
 	return tokenized;
 }
 
-void
+int
 main(void)
 {
 	int j = 0, k = 0;
@@ -126,7 +116,7 @@ main(void)
 
 	for(int i = 0; token[i].coef != 0; i++)
 		totamu += token[i].coef*element2amu(token[i].elmnt);
-//		printf("element %d is %s, has coef of %d\n", i+1, token[i].elmnt, token[i].coef);
+//		printf("element %d is %s, has coef of %d, amu of %.3f\n", i+1, token[i].elmnt, token[i].coef, element2amu(token[i].elmnt));
 	free(token);
 	printf("%.3f g/mol\n", totamu);
 	exit(0);

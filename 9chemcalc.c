@@ -26,18 +26,15 @@ coefatoi(char* tocoef)
 		return coef;
 	return 1;
 }
-	/*
+
 void*
 saferealloc(void* p, size_t size)
 {
 	void* retval = realloc(p, size);
 	if(p == NULL)
-	{
-		fputs("memory allocation error, exiting\n", stderr);
-		exit(0);
-	}
+		exits("\nallocation failed\n");
 	return retval;
-}*/
+}
 
 
 float
